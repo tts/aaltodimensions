@@ -2,6 +2,7 @@ library(shiny)
 library(shinydashboard)
 library(ggvis)
 library(DT)
+library(tidyverse)
 
 data <- readRDS("data_units.RDS")
 
