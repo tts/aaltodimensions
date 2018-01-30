@@ -124,7 +124,7 @@ dim_metadata <- dim_metadata[dim_metadata$doi != "214",]
 dim_metadata_units_separated <- separate_rows(dim_metadata, "units", sep = " ")
 
 #--------------------------
-# Make a shorter title
+# Select columns for the app
 #--------------------------
 
 data_to_shiny <- dim_metadata_units_separated %>% 
