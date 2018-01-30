@@ -22,8 +22,8 @@ sidebar <- dashboardSidebar(
                HTML("<p>Citation metrics by <a target='blank' href='http://dimensions.ai'>Dimensions API</a>, 
                         metadata by <a target='blank' href='https://confluence.csc.fi/display/VIR/REST-lukurajapinta'>VIRTA REST API</a> and <a target='blank' href='research.aalto.fi'>Aalto University CRIS</a>.</p>
                     <p>Updated 26 January 2018</p>
-                    <p>See details in the table tab</p>
-                    <p>For more info, see <a href='https://blogs.aalto.fi/suoritin/2017/06/15/one-year-makes-a-small-difference/blog post'>this blog post</a>")
+                    <p>See details in the Data tab</p>
+                    <p>About, see <a href='https://blogs.aalto.fi/suoritin/'>this blog post (to come)</a>")
         )
       ),
     conditionalPanel(
