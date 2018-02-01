@@ -115,7 +115,7 @@ function(input, output, session) {
                      extensions = "FixedHeader",
                      options = list(paging = TRUE, 
                                     fixedHeader = TRUE,
-                                    autoWidth = TRUE,
+                                    autoWidth = TRUE, # https://stackoverflow.com/a/31814197
                                     columnDefs = list(list(width = '150px', targets = "_all"))))
                                   
     return(dat)
