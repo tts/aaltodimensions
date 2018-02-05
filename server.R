@@ -62,14 +62,12 @@ function(input, output, session) {
                  x = ~xx,
                  y = ~yy,
                  mode = "markers",
-                 hoverinfo = "text",
                  colors = colors,
                  color = I(colors),
                  split = ~parent,
                  symbol = ~symbol,
                  marker = list(size = 10, opacity = 0.7), 
-                 hovertext = ~text,
-                 textposition = "middle right") %>% 
+                 hovertext = ~text) %>% 
       layout( xaxis = list( title=input$xc), 
               yaxis = list( title=input$yc ) )
     
@@ -91,6 +89,18 @@ function(input, output, session) {
     
 })
   
+  
+  output$data_dim_aalto = downloadHandler(
+    filename = function() {
+      filename = 'data_dim_aalto.csv'
+    },
+    content = function(file) {
+      {
+        write.csv(deptData(), 'temp.csv', row.names = FALSE)
+        file.rename('temp.csv', file)    
+      } 
+    }
+  )
   
   
 }
