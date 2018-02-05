@@ -66,7 +66,12 @@ body <- dashboardBody(
                      DT::dataTableOutput("datatable", 
                                          width = "100%",
                                          height = "600px"))
-              )
+              ),
+            fluidRow(
+              column(width = 12,
+                     height = "50px",
+                     downloadButton("data_dim_aalto", "Download"))
+            )
     )
     
   ))
