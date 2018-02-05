@@ -179,11 +179,11 @@ data_units <- data_units %>%
 #---------------------------
 
 results <- data.frame()
-rows <- nrow(dim_metadata_units_separated)
+rows <- nrow(data_units)
 
 for( i in 1:rows ) {
   possibleError <- tryCatch(
-    res <- oadoi_fetch(dim_metadata_units_separated[i, "doi"], email="sonkkilat@gmail.com"),
+    res <- oadoi_fetch(data_units[i, "doi"], email="sonkkilat@gmail.com"),
     error=function(e) e
   )
   
@@ -205,7 +205,7 @@ saveRDS(results, "unpaywall.RDS")
 # Join Unpaywall results with the rest of data 
 #----------------------------------------------------
 
-data_oa <- left_join(dim_metadata_units_separated, results, by = c("doi"="doi"))
+data_oa <- left_join(data_units, results, by = c("doi"="doi"))
 
 data_oa_url <- data_oa %>% 
   filter(!is.na(url))
