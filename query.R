@@ -147,6 +147,7 @@ dim_metadata_units_separated <- separate_rows(dim_metadata, "units", sep = " ")
 #--------------------------------------------------
 # Join with org data from CRIS, and add School color
 #--------------------------------------------------
+
 units <- read_excel("Organisaatiolistaus-30_01_2018.xls")
 units <- units %>% 
   filter(!is.na(`Ids-1`)) %>%
@@ -230,4 +231,39 @@ data_oa_url_unique$field_citation_ratio <- as.numeric(data_oa_url_unique$field_c
 saveRDS(data_oa_url_unique, "shiny_data.RDS")
 
 
+#--------------------------------------------
+# Join with WoS citation data 
+#
+# 1. make char vector of DOIs
+# 2. split in two (WoS query max is 6000)
+# 3. paste to a "DO='doi' OR DO='doi'..." string
+# 4. copy-paste to the WoS GUI Advanced Search
+# 5. download result set in 500 item chunks
+# 6. in Excel, filter columns DI and TC (cites)
+#    and prepend to a single sheet
+# 7. save as CSV
+#--------------------------------------------
 
+dois <- unique(data_oa_url_unique$doi)
+
+dois_1 <- dois[1:5000] 
+dois_2 <- dois[5001:9493]
+dois1_q <- paste(dois_1, collapse='" OR DO="')
+dois1_q <- paste0('DO="', dois1_q, '"')
+cat(dois1_q,file="dois1_q.txt")
+
+dois2_q <- paste(dois_2, collapse='" OR DO="')
+dois2_q <- paste0('DO="', dois2_q, '"')
+cat(dois2_q,file="dois2_q.txt")
+
+wos <- read.csv("wos.csv", stringsAsFactors = FALSE, sep = ";")
+
+data_wos <- left_join(data_oa_url_unique, wos, by = c("doi"="DI"))
+data_wos <- data_wos %>% 
+  rename(times_cited_wos = TC) %>% 
+  mutate(oa = ifelse(oa == 0, "Not OA",
+                     ifelse(oa == 1, "OA",
+                            ifelse(oa == 2, "Green OA",
+                                   "Not known"))))
+
+saveRDS(data_wos, "shiny_data.RDS")
