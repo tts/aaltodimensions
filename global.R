@@ -1,6 +1,5 @@
 library(shiny)
 library(shinydashboard)
-library(ggvis)
 library(DT)
 library(tidyverse)
 library(plotly)
