@@ -5,6 +5,7 @@ library(tidyverse)
 library(httr)
 library(readxl)
 library(roadoi)
+library(rvest)
 
 #---------------------------------------------------------------
 # Helper functions to parse JSON result by the Dimensions API
@@ -74,6 +75,8 @@ data$doi <- gsub("^([^\\?]+)\\?.*", "\\1", data$doi)
 data$doi <- gsub("^([^#]+)#.*", "\\1", data$doi)
 data$doi <- gsub("^([^ ]+) .*", "\\1", data$doi)
 
+saveRDS(data, "virta_data_temp.RDS")
+
 #-----------------------
 # Query Dimensions API
 #-----------------------
@@ -113,6 +116,7 @@ results_notnull <- results[-which(sapply(results, is.null))]
 #
 # see https://stat.ethz.ch/pipermail/r-help/2006-August/111368.html
 #-----------------------------------------------------------------
+
 df <- as.data.frame(t(sapply(results_notnull, rbind)), stringsAsFactors = FALSE)
 names(df) <- c("doi", "times_cited", "recent_citations",
                "highly_cited_1", "highly_cited_5", "highly_cited_10", 
@@ -220,16 +224,13 @@ data_oa_url_unique <- data_oa_url_unique %>%
                                                               ifelse(evidence=="oa repository", "green",
                                                                      ifelse(evidence=="oa journal", "gold", "white")))}) %>% 
   select(doi, times_cited, recent_citations, relative_citation_ratio, field_citation_ratio,
-         year, title, authors, oa, units, fieldcount, name, parent, color,
+         year, title, authors, oa, units, fieldcount, fields, name, parent, color,
          evidence, free_fulltext_url, stroke)
 
 data_oa_url_unique$times_cited <- as.integer(data_oa_url_unique$times_cited)
 data_oa_url_unique$recent_citations <- as.integer(data_oa_url_unique$recent_citations)
 data_oa_url_unique$relative_citation_ratio <- as.numeric(data_oa_url_unique$relative_citation_ratio)
 data_oa_url_unique$field_citation_ratio <- as.numeric(data_oa_url_unique$field_citation_ratio)
-
-saveRDS(data_oa_url_unique, "shiny_data.RDS")
-
 
 #--------------------------------------------
 # Join with WoS citation data 
@@ -264,6 +265,67 @@ data_wos <- data_wos %>%
   mutate(oa = ifelse(oa == 0, "Not OA",
                      ifelse(oa == 1, "OA",
                             ifelse(oa == 2, "Green OA",
-                                   "Not known"))))
+                                   "Not known"))),
+         text = paste0('<b>',parent,'</b>','<br>',name,'<br><b>',title,'</b><br>',journal_name,'<br>',publisher,'(',year,')','<br>Nr of fields: ',
+                       fieldcount,'<br>Nr of authors: ',authors,'<br>OA status in VIRTA: ',oa,'<br>OA full text?: ',is_oa))
 
 saveRDS(data_wos, "shiny_data.RDS")
+
+#------------------------------------------
+# Scrape English names of the research
+# fields from the page of Statistics Finland
+#------------------------------------------
+
+doc <- read_html("http://www.tilastokeskus.fi/meta/luokitukset/tieteenala/001-2010/index_en.html")
+
+codes <- doc %>%
+  html_nodes(xpath = "//table[1]//table//tr/td[1]") %>%
+  html_text()
+
+fields <- doc %>%
+  html_nodes(xpath = "//table[1]//table//tr/td[2]") %>%
+  html_text()
+
+codes_fields <- as.data.frame(cbind(codes, fields), stringsAsFactors = F)
+
+write.csv(codes_fields, "codes_fields.csv", row.names = F)
+
+#----------------------------------------
+# Split VIRTA field codes 
+# and join with its name
+#----------------------------------------
+
+data_wos_f <- separate_rows(data_wos, "fields", sep = " ")
+data_wos_f <- data_wos_f[!duplicated(data_wos_f[,c('doi','units','fields')]),]
+
+data_wos_f <- data_wos_f %>% 
+  rename(year = year.x,
+         title = title.x,
+         authors = authors.x,
+         oa = oa.x,
+         units = units.x,
+         fieldcount = fieldcount.x) %>% 
+  select(-ends_with(".y"))
+
+data_wos_f <- left_join(data_wos_f, codes_fields, by = c("fields"="codes")) %>% 
+  filter(!is.na(fields)) %>% 
+  rename(field_name = fields.y)
+
+data_wos_f$fields <- as.integer(data_wos_f$fields)
+
+#----------------------------------
+# Calculate means for the heatmap
+#----------------------------------
+
+f_means <- data_wos_f %>% 
+  group_by(parent, name, fields) %>% 
+  mutate(times_cited_wos = ifelse(is.na(times_cited_wos), 0, times_cited_wos)) %>% 
+  summarise(Mean_field_citation_ratio = round(mean(field_citation_ratio),2),
+            Mean_times_cited = round(mean(times_cited),2),
+            Mean_times_cited_wos = round(mean(times_cited_wos),2),
+            Mean_relative_citation_ratio = round(mean(relative_citation_ratio),2),
+            Mean_recent_citations = round(mean(recent_citations),2)) %>% 
+  ungroup()
+
+saveRDS(f_means, "f_means.RDS")
+
