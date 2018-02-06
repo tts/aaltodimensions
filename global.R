@@ -5,13 +5,41 @@ library(tidyverse)
 library(plotly)
 
 data <- as.data.frame(readRDS("shiny_data.RDS"), stringsAsFactors = FALSE)
-
-data <- data %>% 
-  mutate(text = paste0('<b>',parent,'</b>','<br>',name,'<br><b>',title,'</b><br>',journal_name,'<br>',publisher,'(',year,')','<br>Nr of fields: ',fieldcount,'<br>Nr of authors: ',authors,'<br>OA status in VIRTA: ',oa,'<br>OA full text?: ',is_oa))
+f_means <- readRDS("f_means.RDS")
 
 metrics <- sort(c("times_cited", "times_cited_wos", "recent_citations", "relative_citation_ratio", "field_citation_ratio", "oa", "fieldcount", "authors"))
 
-schools <- sort(unique(data$parent))
+schools <- c("Aalto University", sort(unique(data$parent)))
+
+#----------------------
+# Plotly heatmap conf
+#----------------------
+
+f2 <- list(
+  size = 9
+)
+
+ax <- list(
+  title = "",
+  tickangle = 45,
+  tickfont = f2
+)
+
+ay <- list(
+  title = "",
+  tickfont = f2
+)
+
+m <- list(
+  l = 300,
+  r = 10,
+  b = 150,
+  t = 50,
+  pad = 6
+)
+
+w <- 800
+h <- 700
 
 
 
