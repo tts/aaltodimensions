@@ -4,7 +4,7 @@ function(input, output, session) {
   # When school is selected, filter data with it
   schoolData <- reactive({
     
-    if ( input$school == "All" ) return(data) else data[data$parent %in% input$school, ]
+    if ( input$school == "Aalto University" ) return(data) else data[data$parent %in% input$school, ]
     
   })
 
@@ -14,7 +14,7 @@ function(input, output, session) {
   observe(
     updateSelectInput(session, 
                       inputId = 'dept', 
-                      choices = if ( input$school == "All" ) "Select school first" else c("All", sort(unique(schoolData()$name)))
+                      choices = if ( input$school == "Aalto University" ) "Select school first" else c("All", sort(unique(schoolData()$name)))
     )
   )
   
@@ -48,19 +48,19 @@ function(input, output, session) {
   })
   
   
-  output$plotly <- renderPlotly({
+  output$scatter <- renderPlotly({
     
     df <- deptData()
     
     colors <- df$color
     
-    df$xx <- df[[input$xc]]
-    df$yy <- df[[input$yc]]
+    title <- if(is.null(input$dept) || input$dept == "Select school first" || input$dept == "All") input$school
+        else paste0(input$school, ", ",input$dept)
     
     p <- plot_ly(df, 
                  type = "scatter",
-                 x = ~xx,
-                 y = ~yy,
+                 x = ~get(input$xc),
+                 y = ~get(input$yc),
                  mode = "markers",
                  colors = colors,
                  color = I(colors),
@@ -69,9 +69,38 @@ function(input, output, session) {
                  marker = list(size = 10, opacity = 0.7), 
                  hovertext = ~text) %>% 
       layout( xaxis = list( title=input$xc), 
-              yaxis = list( title=input$yc ) )
+              yaxis = list( title=input$yc ),
+              title = title)
     
   })
+  
+  
+  output$heatmap <- renderPlotly({
+    
+    if(is.null(input$dept) || input$dept == "Select school first" || input$dept == "All")
+      return()
+    
+    dept_data <- f_means %>% 
+      filter(name == input$dept)
+    
+    rnames <- dept_data[["field_name"]]
+    
+    mat_data <- data.matrix(dept_data[,c(4:8)])
+    rownames(mat_data) <- rnames
+    
+    plot_ly(type = "heatmap",
+            x = colnames(mat_data), y = rownames(mat_data), z = mat_data, 
+            key = mat_data, source = mat_data) %>% 
+      layout(title = paste0("Mean metrics by field in ",input$dept),
+             xaxis = ax, yaxis = ay, 
+             showlegend = FALSE, 
+             autosize = F, 
+             width = w, 
+             height = h, 
+             margin = m)
+    
+  })
+  
   
   
   output$datatable <- DT::renderDataTable({
