@@ -3,11 +3,12 @@ sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem("Scatterplot", tabName = "scatterplot"),
     menuItem("Data", tabName = "table"),
+    menuItem("Heatmap by dept", tabName = "heat"),
     conditionalPanel(
       condition = "input.tabs == 'scatterplot'",
       selectInput(inputId = "school",
                   label = "school", 
-                  choices = c("All", schools),
+                  choices = schools,
                   multiple = FALSE,
                   selected = "All"),
       selectInput(inputId = "dept",
@@ -38,6 +39,13 @@ sidebar <- dashboardSidebar(
                     <p>About this app, see <a href='https://blogs.aalto.fi/suoritin/'>this blog post (to come)</a></p>
                     <p>Dimension data 26 Jan 2018, WoS data 4 Feb 2018</p>")
       )),
+    conditionalPanel(
+      condition = "input.tabs == 'heat'",
+      tags$div(class="form-group shiny-input-container", 
+               HTML("<p>For citation metrics explanations, see <a href='https://figshare.com/articles/Dimensions_Metrics_API_Documentation/5783694'>Dimensions API Documentation</a></p>
+                    <p>About this app, see <a href='https://blogs.aalto.fi/suoritin/'>this blog post (to come)</a></p>
+                    <p>Dimension data 26 Jan 2018, WoS data 4 Feb 2018</p>")
+      )),
     id = "tabs"
   )
 )
@@ -52,7 +60,7 @@ body <- dashboardBody(
               column(
                 width = 10,
                 heigth = "800px",
-                plotlyOutput("plotly",
+                plotlyOutput("scatter",
                              width = "100%",
                              height = "800px")
                 )
@@ -71,6 +79,18 @@ body <- dashboardBody(
               column(width = 12,
                      height = "50px",
                      downloadButton("data_dim_aalto", "Download"))
+            )
+    ),
+    
+    tabItem("heat",
+            fluidRow(
+              column(
+                width = 10,
+                heigth = "700px",
+                plotlyOutput("heatmap",
+                             width = "100%",
+                             height = "700px")
+              )
             )
     )
     
