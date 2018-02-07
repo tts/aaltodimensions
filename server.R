@@ -19,6 +19,7 @@ function(input, output, session) {
   )
   
   
+  
   # Filter school data by dept, if selected
   deptData <- reactive({
     
@@ -32,7 +33,8 @@ function(input, output, session) {
   })
   
   
-  # Prepare URLs for datatable
+  
+   # Prepare URLs for datatable
   makedata <- reactive({
     
     totable <- deptData()
@@ -42,8 +44,9 @@ function(input, output, session) {
              oa_url = ifelse(!is.na(urls),
                              paste0("<a target='blank' href='", urls, "'>", urls, "</a>"),
                              urls)) %>% 
-      select(url, title, year, times_cited, times_cited_wos, recent_citations, relative_citation_ratio, field_citation_ratio, 
-           authors, oa, is_oa, oa_url, fieldcount, parent, name)
+      rename(oa_virta = oa) %>% 
+      select(url, title, year, is_oa, oa_url, times_cited, times_cited_wos, recent_citations, relative_citation_ratio, field_citation_ratio, 
+           authors, oa_virta, fieldcount, parent, name)
     
   })
   
@@ -111,7 +114,7 @@ function(input, output, session) {
                      extensions = "FixedHeader",
                      options = list(paging = TRUE, 
                                     fixedHeader = TRUE,
-                                    autoWidth = TRUE,
+                                    autoWidth = FALSE,
                                     scrollX = TRUE,
                                     columnDefs = list(list(target = "_all", width = "50px"))))
     return(dat)
