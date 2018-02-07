@@ -16,7 +16,7 @@ schools <- c("Aalto University", sort(unique(data$parent)))
 #----------------------
 
 f2 <- list(
-  size = 9
+  size = 10
 )
 
 ax <- list(
@@ -38,8 +38,8 @@ m <- list(
   pad = 6
 )
 
-w <- 800
-h <- 700
+w <- 700
+h <- 600
 
 
 
