@@ -186,6 +186,7 @@ results <- data.frame()
 rows <- nrow(data_units)
 
 for( i in 1:rows ) {
+  
   possibleError <- tryCatch(
     res <- oadoi_fetch(data_units[i, "doi"], email="sonkkilat@gmail.com"),
     error=function(e) e
@@ -199,38 +200,38 @@ for( i in 1:rows ) {
   {
     results <- rbind(results, res)
   }
-  
 }
 
 saveRDS(results, "unpaywall.RDS")
-
+  
+results_oa_loc <- results %>%
+  mutate(urls = purrr::map(best_oa_location, "url") %>%
+           purrr::map_if(purrr::is_empty, ~ NA_character_) %>%
+           purrr::flatten_chr())
 
 #----------------------------------------------------
 # Join Unpaywall results with the rest of data 
 #----------------------------------------------------
 
-data_oa <- left_join(data_units, results, by = c("doi"="doi"))
+data_oa <- left_join(data_units, results_oa_loc, by = c("doi"="doi"))
+data_oa <- data_oa[!duplicated(data_oa[,c('doi','units')]),]
 
-data_oa_url <- data_oa %>% 
-  filter(!is.na(url))
-
-data_oa_url_unique <- data_oa_url[!duplicated(data_oa_url[,c('doi','units')]),]
-
-data_oa_url_unique <- data_oa_url_unique %>% 
-  rename(title = title.x) %>% 
-  mutate(evidence = gsub("\\s\\(.*\\)", "", evidence)) %>% 
-  rowwise() %>% 
-  mutate(stroke = if ( is.na(evidence) ) "white" else {ifelse(evidence %in% c("open", "hybrid"), "bronze",
-                                                              ifelse(evidence=="oa repository", "green",
-                                                                     ifelse(evidence=="oa journal", "gold", "white")))}) %>% 
+data_oa <- data_oa %>%
+  rename(year = year.x,
+         title = title.x,
+         is_oa = is_oa.x,
+         journal_name = journal_name.x,
+         publisher = publisher.x,
+         urls = urls.x) %>%
+  mutate(symbol = ifelse(is_oa == TRUE, 3, 1)) %>%
   select(doi, times_cited, recent_citations, relative_citation_ratio, field_citation_ratio,
-         year, title, authors, oa, units, fieldcount, fields, name, parent, color,
-         evidence, free_fulltext_url, stroke)
+         year, title, journal_name, publisher, authors, oa, units, fieldcount, fields, name, parent, 
+         color, is_oa, symbol, urls)
 
-data_oa_url_unique$times_cited <- as.integer(data_oa_url_unique$times_cited)
-data_oa_url_unique$recent_citations <- as.integer(data_oa_url_unique$recent_citations)
-data_oa_url_unique$relative_citation_ratio <- as.numeric(data_oa_url_unique$relative_citation_ratio)
-data_oa_url_unique$field_citation_ratio <- as.numeric(data_oa_url_unique$field_citation_ratio)
+data_oa$times_cited <- as.integer(data_oa$times_cited)
+data_oa$recent_citations <- as.integer(data_oa$recent_citations)
+data_oa$relative_citation_ratio <- as.numeric(data_oa$relative_citation_ratio)
+data_oa$field_citation_ratio <- as.numeric(data_oa$field_citation_ratio)
 
 #--------------------------------------------
 # Join with WoS citation data 
@@ -245,7 +246,7 @@ data_oa_url_unique$field_citation_ratio <- as.numeric(data_oa_url_unique$field_c
 # 7. save as CSV
 #--------------------------------------------
 
-dois <- unique(data_oa_url_unique$doi)
+dois <- unique(data_oa$doi)
 
 dois_1 <- dois[1:5000] 
 dois_2 <- dois[5001:9493]
@@ -259,21 +260,22 @@ cat(dois2_q,file="dois2_q.txt")
 
 wos <- read.csv("wos.csv", stringsAsFactors = FALSE, sep = ";")
 
-data_wos <- left_join(data_oa_url_unique, wos, by = c("doi"="DI"))
+data_wos <- left_join(data_oa, wos, by = c("doi"="DI"))
 data_wos <- data_wos %>% 
   rename(times_cited_wos = TC) %>% 
   mutate(oa = ifelse(oa == 0, "Not OA",
                      ifelse(oa == 1, "OA",
                             ifelse(oa == 2, "Green OA",
                                    "Not known"))),
-         text = paste0('<b>',parent,'</b>','<br>',name,'<br><b>',title,'</b><br>',journal_name,'<br>',publisher,'(',year,')','<br>Nr of fields: ',
-                       fieldcount,'<br>Nr of authors: ',authors,'<br>OA status in VIRTA: ',oa,'<br>OA full text?: ',is_oa))
+         shorttext = ifelse(nchar(title) > 100, substr(title,1,100), title),
+         shortj = ifelse(nchar(journal_name) > 50, substr(journal_name,1,50), journal_name),
+         text = paste0('<b>',parent,'</b>','<br>',name,'<br><b>',shorttext,'</b><br>',shortj,'<br>',publisher,' (',year,')','<br>Nr of authors: ',authors,'<br>OA full text available? ',is_oa))
 
 saveRDS(data_wos, "shiny_data.RDS")
 
 #------------------------------------------
 # Scrape English names of the research
-# fields from the page of Statistics Finland
+# fields from Statistics Finland
 #------------------------------------------
 
 doc <- read_html("http://www.tilastokeskus.fi/meta/luokitukset/tieteenala/001-2010/index_en.html")
@@ -320,11 +322,11 @@ data_wos_f$fields <- as.integer(data_wos_f$fields)
 f_means <- data_wos_f %>% 
   group_by(parent, name, fields) %>% 
   mutate(times_cited_wos = ifelse(is.na(times_cited_wos), 0, times_cited_wos)) %>% 
-  summarise(Mean_field_citation_ratio = round(mean(field_citation_ratio),2),
-            Mean_times_cited = round(mean(times_cited),2),
-            Mean_times_cited_wos = round(mean(times_cited_wos),2),
-            Mean_relative_citation_ratio = round(mean(relative_citation_ratio),2),
-            Mean_recent_citations = round(mean(recent_citations),2)) %>% 
+  summarise(Field_citation_ratio = round(mean(field_citation_ratio),2),
+            Times_cited = round(mean(times_cited),2),
+            Times_cited_wos = round(mean(times_cited_wos),2),
+            Relative_citation_ratio = round(mean(relative_citation_ratio),2),
+            Recent_citations = round(mean(recent_citations),2)) %>% 
   ungroup()
 
 saveRDS(f_means, "f_means.RDS")
