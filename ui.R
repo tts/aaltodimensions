@@ -59,10 +59,10 @@ body <- dashboardBody(
             fluidRow(
               column(
                 width = 10,
-                heigth = "800px",
+                heigth = "600px",
                 plotlyOutput("scatter",
                              width = "100%",
-                             height = "800px")
+                             height = "600px")
                 )
               )
             ),
@@ -86,10 +86,10 @@ body <- dashboardBody(
             fluidRow(
               column(
                 width = 10,
-                heigth = "700px",
+                heigth = "600px",
                 plotlyOutput("heatmap",
                              width = "100%",
-                             height = "700px")
+                             height = "600px")
               )
             )
     )
