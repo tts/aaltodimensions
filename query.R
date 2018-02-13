@@ -6,6 +6,7 @@ library(httr)
 library(readxl)
 library(roadoi)
 library(rvest)
+library(rAltmetric)
 
 #---------------------------------------------------------------
 # Helper functions to parse JSON result by the Dimensions API
@@ -262,7 +263,7 @@ wos <- read.csv("wos.csv", stringsAsFactors = FALSE, sep = ";")
 
 data_wos <- left_join(data_oa, wos, by = c("doi"="DI"))
 data_wos <- data_wos %>% 
-  rename(times_cited_wos = TC) %>% 
+  rename(wos = TC) %>% 
   mutate(oa = ifelse(oa == 0, "Not OA",
                      ifelse(oa == 1, "OA",
                             ifelse(oa == 2, "Green OA",
@@ -272,6 +273,44 @@ data_wos <- data_wos %>%
          text = paste0('<b>',parent,'</b>','<br>',name,'<br><b>',shorttext,'</b><br>',shortj,'<br>',publisher,' (',year,')','<br>Nr of authors: ',authors,'<br>OA full text available? ',is_oa))
 
 saveRDS(data_wos, "shiny_data.RDS")
+
+#-----------------------------------
+# Join with some Altmetric data:
+# Altmetric score, Mendeley readers,
+# Tweets
+#-----------------------------------
+results <- list()
+rows <- nrow(data_wos)
+
+for( i in 1:rows ) {
+  possibleError <- tryCatch(
+    res <- plyr::llply(paste0('doi:',data_wos[i, "doi"]), altmetrics),
+    error=function(e) e
+  )
+  
+  if(inherits(possibleError, "error")) next
+  
+  message("Querying DOI nr ", i, " out of ", rows)
+  results[i] <- res
+}
+
+metric_data <- plyr::ldply(results, altmetric_data)
+write.csv(metric_data, file = "altm.csv")
+
+data_wos_altm <- left_join(data_wos, metric_data, by = c("doi"="doi")) %>% 
+  select(doi, times_cited, recent_citations, wos, relative_citation_ratio, field_citation_ratio,
+         year, title.x, journal_name, publisher, authors.x, oa, units, fieldcount, name, parent, 
+         color, is_oa.x, symbol, urls, text, shorttext, shortj, cited_by_tweeters_count, mendeley, score) %>% 
+  rename(altm_score = score,
+         title = title.x,
+         is_oa = is_oa.x,
+         authors = authors.s,
+         tweets = cited_by_tweeters_count)
+
+data_wos_altm$mendeley <- as.numeric(data_wos_altm$mendeley)
+
+saveRDS(data_wos_altm, "shiny_data.RDS")
+
 
 #------------------------------------------
 # Scrape English names of the research
@@ -321,10 +360,10 @@ data_wos_f$fields <- as.integer(data_wos_f$fields)
 
 f_means <- data_wos_f %>% 
   group_by(parent, name, fields) %>% 
-  mutate(times_cited_wos = ifelse(is.na(times_cited_wos), 0, times_cited_wos)) %>% 
+  mutate(wos = ifelse(is.na(wos), 0, wos)) %>% 
   summarise(Field_citation_ratio = round(mean(field_citation_ratio),2),
             Times_cited = round(mean(times_cited),2),
-            Times_cited_wos = round(mean(times_cited_wos),2),
+            Times_cited_wos = round(mean(wos),2),
             Relative_citation_ratio = round(mean(relative_citation_ratio),2),
             Recent_citations = round(mean(recent_citations),2)) %>% 
   ungroup()
