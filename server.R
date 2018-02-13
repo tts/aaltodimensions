@@ -1,6 +1,5 @@
 function(input, output, session) {
   
-  
   # When school is selected, filter data with it
   schoolData <- reactive({
     
@@ -45,8 +44,9 @@ function(input, output, session) {
                              paste0("<a target='blank' href='", urls, "'>", urls, "</a>"),
                              urls)) %>% 
       rename(oa_virta = oa) %>% 
-      select(url, title, year, is_oa, oa_url, times_cited, times_cited_wos, recent_citations, relative_citation_ratio, field_citation_ratio, 
-           authors, oa_virta, fieldcount, parent, name)
+      select(url, title, year, is_oa, oa_url, times_cited, wos, recent_citations, relative_citation_ratio, field_citation_ratio, 
+             tweets, mendeley, altm_score,
+             authors, oa_virta, fieldcount, parent, name)
     
   })
   
@@ -71,8 +71,10 @@ function(input, output, session) {
                  symbol = ~symbol,
                  marker = list(size = 10, opacity = 0.7), 
                  hovertext = ~text) %>% 
-      layout( xaxis = list( title=input$xc), 
-              yaxis = list( title=input$yc ),
+      layout( xaxis = list( title = input$xc,
+                            type = input$xscale), 
+              yaxis = list( title = input$yc,
+                            type = input$yscale),
               title = title)
     
   })
@@ -114,7 +116,7 @@ function(input, output, session) {
                      extensions = "FixedHeader",
                      options = list(paging = TRUE, 
                                     fixedHeader = TRUE,
-                                    autoWidth = FALSE,
+                                    autoWidth = TRUE,
                                     scrollX = TRUE,
                                     columnDefs = list(list(target = "_all", width = "50px"))))
     return(dat)
