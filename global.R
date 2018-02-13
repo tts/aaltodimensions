@@ -5,9 +5,13 @@ library(tidyverse)
 library(plotly)
 
 data <- as.data.frame(readRDS("shiny_data.RDS"), stringsAsFactors = FALSE)
+
 f_means <- readRDS("f_means.RDS")
 
-metrics <- sort(c("times_cited", "times_cited_wos", "recent_citations", "relative_citation_ratio", "field_citation_ratio", "oa", "fieldcount", "authors"))
+metrics <- sort(c("times_cited", "wos", "recent_citations", "relative_citation_ratio", "field_citation_ratio", 
+                  "oa", "fieldcount", "authors", "mendeley", "tweets", "altm_score"))
+
+scales <- c("linear", "log")
 
 schools <- c("Aalto University", sort(unique(data$parent)))
 
