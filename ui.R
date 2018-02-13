@@ -17,17 +17,21 @@ sidebar <- dashboardSidebar(
                   multiple = FALSE,
                   selected = NULL),
       selectInput("xc", "x axis", as.list(metrics), selected = "times_cited"),
-      selectInput("yc", "y axis", as.list(metrics), selected = "times_cited_wos"),
+      selectInput("yc", "y axis", as.list(metrics), selected = "wos"),
+      selectInput("xscale", "x axis scale", as.list(scales), selected = "linear"),
+      selectInput("yscale", "y axis scale", as.list(scales), selected = "linear"),
       tags$div(class="form-group shiny-input-container",
                HTML("<p>Citation metrics by <a target='blank' href='http://dimensions.ai'>Dimensions</a> and Web of Science, 
-                        Open Access full text availabity info by <a target='blank' href='http://unpaywall.org/api/v2'>Unpaywall</a>,
+                        Open Access full text availability info by <a target='blank' href='http://unpaywall.org/api/v2'>Unpaywall</a>,
+                        Mendeley reader counts, tweets and Altmetric score by <a target='blank' href='http://altmetric.com'>Altmetric</a>,
                         article metadata by <a target='blank' href='https://confluence.csc.fi/display/VIR/REST-lukurajapinta'>VIRTA</a>,
                         Aalto University organisations by <a target='blank' href='http://research.aalto.fi'>local CRIS</a>.</p>
                     <p><b>authors</b> = number of authors</p>
                     <p><b>fieldcount</b> = number of different scientific fields</p>
-                    <p>For citation metrics explanations, see <a href='https://figshare.com/articles/Dimensions_Metrics_API_Documentation/5783694'>Dimensions API Documentation</a></p>
-                    <p>About this app, see <a href='https://blogs.aalto.fi/suoritin/'>this blog post (to come)</a></p>
-                    <p>Dimension data 26 Jan 2018, WoS data 4 Feb 2018</p>")
+                    <p>For citation metrics explanations, see <a href='https://figshare.com/articles/Dimensions_Metrics_API_Documentation/5783694'>Dimensions API Documentation</a>,
+                       and for altmetrics, see <a href='https://help.altmetric.com/support/solutions'>Altmetric data</a></p>
+                    <p>About this app, see <a href='https://blogs.aalto.fi/suoritin/'>blog post (to come)</a></p>
+                    <p>All data as of 26 Jan 2018 except WoS 4 Feb 2018, and Altmetric 13 Feb 2018</p>")
         )
       ),
     conditionalPanel(
@@ -35,16 +39,18 @@ sidebar <- dashboardSidebar(
       tags$div(class="form-group shiny-input-container", 
                HTML("<p><b>authors</b> = number of authors</p>
                     <p><b>fieldcount</b> = number of different scientific fields</p>
-                    <p>For citation metrics explanations, see <a href='https://figshare.com/articles/Dimensions_Metrics_API_Documentation/5783694'>Dimensions API Documentation</a></p>
-                    <p>About this app, see <a href='https://blogs.aalto.fi/suoritin/'>this blog post (to come)</a></p>
-                    <p>Dimension data 26 Jan 2018, WoS data 4 Feb 2018</p>")
+                    <p>For citation metrics explanations, see <a href='https://figshare.com/articles/Dimensions_Metrics_API_Documentation/5783694'>Dimensions API Documentation</a>,
+                       and for altmetrics, see <a href='https://help.altmetric.com/support/solutions'>Altmetric data</a></p>
+                    <p>About this app, see <a href='https://blogs.aalto.fi/suoritin/'>blog post (to come)</a></p>
+                    <p>All data as of 26 Jan 2018 except WoS 4 Feb 2018,and Altmetric 13 Feb 2018</p>")
       )),
     conditionalPanel(
       condition = "input.tabs == 'heat'",
       tags$div(class="form-group shiny-input-container", 
-               HTML("<p>For citation metrics explanations, see <a href='https://figshare.com/articles/Dimensions_Metrics_API_Documentation/5783694'>Dimensions API Documentation</a></p>
-                    <p>About this app, see <a href='https://blogs.aalto.fi/suoritin/'>this blog post (to come)</a></p>
-                    <p>Dimension data 26 Jan 2018, WoS data 4 Feb 2018</p>")
+               HTML("<p>For citation metrics explanations, see <a href='https://figshare.com/articles/Dimensions_Metrics_API_Documentation/5783694'>Dimensions API Documentation</a>,
+                       and for altmetrics, see <a href='https://help.altmetric.com/support/solutions'>Altmetric data</a></p>
+                    <p>About this app, see <a href='https://blogs.aalto.fi/suoritin/'>blog post (to come)</a></p>
+                    <p>All data as of 26 Jan 2018 except WoS 4 Feb 2018, and Altmetric 13 Feb 2018<</p>")
       )),
     id = "tabs"
   )
