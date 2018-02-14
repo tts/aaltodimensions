@@ -80,6 +80,21 @@ function(input, output, session) {
   })
   
   
+  output$prop_oa <- renderValueBox({
+    valueBox(
+      "With OA full text",
+      ifelse(input$school == "Aalto University",
+             with_oa_uniquedois,
+             paste0(nrow(deptData()[!is.na(deptData()$urls) & !duplicated(deptData()[,1]), ]), " (", 
+                    floor(nrow(deptData()[!is.na(deptData()$urls) & !duplicated(deptData()[,1]), ]
+                               ) / nrow(deptData()[!duplicated(deptData()[,1]), ]) * 100), "% )")), 
+      icon = icon("calculator"),
+      color = "yellow"
+    )
+    
+  })
+  
+  
   output$heatmap <- renderPlotly({
     
     if(is.null(input$dept) || input$dept == "Select school first" || input$dept == "All")
