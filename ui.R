@@ -64,13 +64,17 @@ body <- dashboardBody(
     tabItem("scatterplot",
             fluidRow(
               column(
-                width = 10,
+                width = 9,
                 heigth = "600px",
                 plotlyOutput("scatter",
                              width = "100%",
                              height = "600px")
+                ),
+              column(
+                width = 3,
+                valueBoxOutput("prop_oa", width = "100%")
                 )
-              )
+            )
             ),
     
     tabItem("table",
