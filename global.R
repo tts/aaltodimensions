@@ -5,7 +5,6 @@ library(tidyverse)
 library(plotly)
 
 data <- as.data.frame(readRDS("shiny_data.RDS"), stringsAsFactors = FALSE)
-
 f_means <- readRDS("f_means.RDS")
 
 metrics <- sort(c("times_cited", "wos", "recent_citations", "relative_citation_ratio", "field_citation_ratio", 
@@ -14,6 +13,14 @@ metrics <- sort(c("times_cited", "wos", "recent_citations", "relative_citation_r
 scales <- c("linear", "log")
 
 schools <- c("Aalto University", sort(unique(data$parent)))
+
+uniquedois <- data[!duplicated(data[,1]), ]
+nrow_uniquedois <- nrow(uniquedois)
+with_oa_uniquedois <- paste0(nrow(uniquedois[!is.na(uniquedois$urls),]),
+                                " (",
+                                floor(nrow(uniquedois[!is.na(uniquedois$urls),]) / nrow_uniquedois * 100),
+                                "%)")
+
 
 #----------------------
 # Plotly heatmap conf
