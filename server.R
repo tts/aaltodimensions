@@ -39,7 +39,7 @@ function(input, output, session) {
     totable <- deptData()
     
     totable <- totable %>% 
-      mutate(url = paste0("<a target='blank' href='http://dx.doi.org/", doi, "'>", doi, "</a>"),
+      mutate(url = paste0("<a target='blank' href='https://doi.org/", doi, "'>", doi, "</a>"),
              oa_url = ifelse(!is.na(urls),
                              paste0("<a target='blank' href='", urls, "'>", urls, "</a>"),
                              urls)) %>% 
