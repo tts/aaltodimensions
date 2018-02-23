@@ -30,8 +30,8 @@ sidebar <- dashboardSidebar(
                     <p><b>fieldcount</b> = number of different scientific fields</p>
                     <p>For citation metrics explanations, see <a href='https://figshare.com/articles/Dimensions_Metrics_API_Documentation/5783694'>Dimensions API Documentation</a>,
                        and for altmetrics, see <a href='https://help.altmetric.com/support/solutions'>Altmetric data</a></p>
-                    <p>About this app, see <a href='https://blogs.aalto.fi/suoritin/'>blog post (to come)</a></p>
-                    <p>All data as of 26 Jan 2018 except WoS 4 Feb 2018, and Altmetric 13 Feb 2018</p>")
+                    <p>All data as of 26 Jan 2018 except WoS 4 Feb 2018, and Altmetric 13 Feb 2018</p>
+                    <p><a href='https://blogs.aalto.fi/suoritin/2018/02/17/open-landscape/'>About</a></p>")
         )
       ),
     conditionalPanel(
@@ -41,16 +41,16 @@ sidebar <- dashboardSidebar(
                     <p><b>fieldcount</b> = number of different scientific fields</p>
                     <p>For citation metrics explanations, see <a href='https://figshare.com/articles/Dimensions_Metrics_API_Documentation/5783694'>Dimensions API Documentation</a>,
                        and for altmetrics, see <a href='https://help.altmetric.com/support/solutions'>Altmetric data</a></p>
-                    <p>About this app, see <a href='https://blogs.aalto.fi/suoritin/'>blog post (to come)</a></p>
-                    <p>All data as of 26 Jan 2018 except WoS 4 Feb 2018,and Altmetric 13 Feb 2018</p>")
+                    <p>All data as of 26 Jan 2018 except WoS 4 Feb 2018, and Altmetric 13 Feb 2018</p>
+                    <p><a href='https://blogs.aalto.fi/suoritin/2018/02/17/open-landscape/'>About</a></p>")
       )),
     conditionalPanel(
       condition = "input.tabs == 'heat'",
       tags$div(class="form-group shiny-input-container", 
                HTML("<p>For citation metrics explanations, see <a href='https://figshare.com/articles/Dimensions_Metrics_API_Documentation/5783694'>Dimensions API Documentation</a>,
                        and for altmetrics, see <a href='https://help.altmetric.com/support/solutions'>Altmetric data</a></p>
-                    <p>About this app, see <a href='https://blogs.aalto.fi/suoritin/'>blog post (to come)</a></p>
-                    <p>All data as of 26 Jan 2018 except WoS 4 Feb 2018, and Altmetric 13 Feb 2018<</p>")
+                    <p>All data as of 26 Jan 2018 except WoS 4 Feb 2018, and Altmetric 13 Feb 2018</p>
+                    <p><a href='https://blogs.aalto.fi/suoritin/2018/02/17/open-landscape/'>About</a></p>")
       )),
     id = "tabs"
   )
