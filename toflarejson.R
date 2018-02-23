@@ -1,6 +1,6 @@
 #--------------------------
 # Transform data returned
-# by Unpaywall to JSON
+# by Unpaywall API to JSON
 # for a D3 collapsible tree
 #--------------------------
 library(jsonlite)
