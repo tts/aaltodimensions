@@ -13,7 +13,7 @@ data <- data[!duplicated(data[,c('doi')]),]
 publishers <- unique(data$publisher)
 
 # http://www.rensenieuwenhuis.nl/r-sessions-30-visualizing-missing-values/
-var.NA <- matrix(ncol=length(publishers), nrow=23)
+var.NA <- matrix(ncol=length(publishers), nrow=26)
 
 for (i in 1:dim(data)[2])
 {
@@ -31,6 +31,7 @@ publ_stats <- data %>%
   arrange(desc(n))
 
 publ_names <- publ_stats$publisher
+
 var_names <- c("urls", "times_cited_wos")
 
 # https://stackoverflow.com/a/7352287
@@ -76,4 +77,3 @@ levelplot(p2,
           main="Percentage of missing variables",
           xlab="Variable",
           ylab="School")
-
