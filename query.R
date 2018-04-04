@@ -245,6 +245,11 @@ data_oa$field_citation_ratio <- as.numeric(data_oa$field_citation_ratio)
 # 6. in Excel, filter columns DI and TC (cites)
 #    and prepend to a single sheet
 # 7. save as CSV
+#
+# Edit 4.4.2018: this step can be computerized after all, e.g.
+# with the wosr R package, see example code
+# at https://github.com/tts/aaltodimensions/blob/master/query_wos_api.R
+# 
 #--------------------------------------------
 
 dois <- unique(data_oa$doi)
