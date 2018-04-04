@@ -1,5 +1,4 @@
 library(wosr)
-library(tidyverse)
 
 Sys.setenv(WOS_USERNAME = "...", WOS_PASSWORD = "...")
 
